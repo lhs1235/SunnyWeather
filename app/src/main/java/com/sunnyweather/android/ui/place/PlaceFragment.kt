@@ -12,27 +12,35 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.sunnyweather.android.MainActivity
 import com.sunnyweather.android.R
 import com.sunnyweather.android.ui.weather.WeatherActivity
 
 class PlaceFragment : Fragment() {
+
+    val viewModel by lazy { ViewModelProviders.of(this).get(PlaceViewModel::class.java) }
+
+    private lateinit var adapter: PlaceAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchPlaceEdit: EditText
     private lateinit var bgImageView: ImageView
-    val viewModel by lazy { ViewModelProvider(this).get(PlaceViewModel::class.java) }
-    private lateinit var adapter: PlaceAdapter
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_place, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (viewModel.isPlaceSaved()) {
+        // 初始化 RecyclerView
+        recyclerView = view.findViewById(R.id.recyclerView)
+        searchPlaceEdit = view.findViewById(R.id.searchPlaceEdit)
+        bgImageView = view.findViewById(R.id.bgImageView)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        if (activity is MainActivity && viewModel.isPlaceSaved()) {
             val place = viewModel.getSavedPlace()
             val intent = Intent(context, WeatherActivity::class.java).apply {
                 putExtra("location_lng", place.location.lng)
@@ -43,13 +51,6 @@ class PlaceFragment : Fragment() {
             activity?.finish()
             return
         }
-        // 初始化 RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerView)
-        searchPlaceEdit = view.findViewById(R.id.searchPlaceEdit)
-        bgImageView = view.findViewById(R.id.bgImageView)
-    }
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         val layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
         adapter = PlaceAdapter(this, viewModel.placeList)
@@ -77,8 +78,6 @@ class PlaceFragment : Fragment() {
                 }
             }
         })
-
-
         viewModel.placeLiveData.observe(viewLifecycleOwner, Observer{ result ->
             val places = result.getOrNull()
             if (places != null) {
@@ -93,4 +92,5 @@ class PlaceFragment : Fragment() {
             }
         })
     }
+
 }
