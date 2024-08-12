@@ -37,7 +37,7 @@ android {
 
 dependencies {
 
-
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation ("androidx.recyclerview:recyclerview:1.3.2")
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
